@@ -17,3 +17,5 @@ conn()
 //conection
 
 module.exports = conn
+
+console.log(conn)
