@@ -14,9 +14,72 @@ const generateToken = (id) => {
 
 //Register user and sign in
 const register = async (req, res) => {
-  res.send("Registro");
+  const { name, email, password } = req.body
+
+  // check if user exists
+  const user = await User.findOne({ email })
+
+  if (user) {
+    res.status(422).json({ errors: ["Por favor, utilize outro e-mail"] })
+    return
+  }
+
+  // Generate password hash
+  const salt = await bcrypt.genSalt()
+  const passwordHash = await bcrypt.hash(password, salt)
+
+  // Create user
+  const newUser = await User.create({
+    name,
+    email,
+    password: passwordHash
+  })
+
+  //If user was created successfully, retur the token
+  if (!newUser) {
+    res.status(422).json({ errors: ["Houve um erro, por favor tente mais tarde."] })
+  }
+
+  res.status(201).json({
+    _id: newUser._id,
+    token: generateToken(newUser._id),
+  })
+}
+
+// Sign user in 
+const login = async (req, res) => {
+  const { email, password } = req.body
+
+  const user = await User.findOne({ email })
+
+  // Check if user exists
+  if (!user) {
+    res.status(404).json({ errors: ["Usuário não encontrado."] })
+    return
+  }
+
+  if (!(await bcrypt.compare(password, user.password))) {
+    res.status(422).json({ errors: ["Senha inválida."] })
+    return
+  }
+
+  res.status(201).json({
+    _id: user._id,
+    profileImage: user.profileImage,
+    token: generateToken(user._id),
+  })
+
+}
+
+// Get current logged in user
+const getCurrentUser = async (req, res) => {
+  const user = req.user
+
+  res.status(200).json(user)
 }
 
 module.exports = {
-  register
+  register,
+  login,
+  getCurrentUser
 }
