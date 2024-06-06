@@ -2,7 +2,7 @@ const { body } = require("express-validator");
 
 const photoInsertValidation = () => {
   return [
-    body("totle")
+    body("title")
       .not()
       .equals("undefined")
       .withMessage("O título é obrigatório.")

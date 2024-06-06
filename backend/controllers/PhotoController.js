@@ -8,7 +8,7 @@ const insertPhoto = async (req, res) => {
   const { title } = req.body;
   const image = req.file.fileName;
 
-  const reqUser = req.reqUser
+  const reqUser = req.user
 
   const user = await User.findById(reqUser._id)
 
@@ -30,8 +30,6 @@ const insertPhoto = async (req, res) => {
   }
 
   res.status(201).json(newPhoto)
-
-  res.send("Photo insert")
 }
 
 const deletePhoto = async (req, res) => {
@@ -39,7 +37,7 @@ const deletePhoto = async (req, res) => {
 
   const reqUser = req.user
   try {
-    const photo = await Photo.findById(mongoose.Types.ObjectId(id))
+    const photo = await Photo.findById(new mongoose.Types.ObjectId(id))
 
     if (!photo) {
       res.status(404).json({ errors: ["Foto não encontrada!"] })
